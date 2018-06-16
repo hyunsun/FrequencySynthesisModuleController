@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FrequencySynthesisModuleController
@@ -6,33 +7,40 @@ namespace FrequencySynthesisModuleController
     public enum CommandType : byte
     {
         StatusRequest = 0x01,
-        ModeRequest = 0x02,
-        StcRequest = 0x03,
-        AgcRequest = 0x04,
+        FrequencyRequest = 0x02,
+        PulseRequest = 0x03,
+        SweepRequest = 0x04,
 
-        StatusResponse = 0x81, //test: 0x71
-        ModeResponse = 0x82,
-        StcResponse = 0x83,
-        AgcResponse = 0x84
+        StatusResponse = 0x81, //test: 0x71 q
+        FrequencyResponse = 0x82,
+        PulseResponse = 0x83,
+        SweepResponse = 0x84
     }
 
     public enum ModeType : byte
     {
-        Normal = 0x01, //test: 0x64
-        High = 0x02
+        Silence = 0x00, 
+        Normal = 0x01
+    }
+
+    public enum ResultState : byte
+    {
+        Ok = 0x00, //test: 0x67 g
+        InvalidRequest = 0xFF, //test: 0x68 h
+        ModeError = 0xFE //test: 0x69 i
     }
 
     class RequestResult
     {
         public string ErrorMessage;
-        public bool Lo1Status;
-        public bool Lo2Status;
+        public List<bool> Alams = new List<bool>();
+        public double Temperature;
     }
 
     class FrameConstants
     {
-        public const byte StartCode = 0x7E; //test: 0x61
-        public const byte EndCode = 0x7F; //test: 0x66
+        public const byte StartCode = 0x7E; //test: 0x61 a
+        public const byte EndCode = 0x7F; //test: 0x66 f
         public static byte[] StatusReqData = { 0xAA, 0xBB, 0xCC };
 
         public static ushort[] CRCTable = {
@@ -70,8 +78,8 @@ namespace FrequencySynthesisModuleController
             0x6E17, 0x7E36, 0x4E55, 0x5E74, 0x2E93, 0x3EB2, 0x0ED1, 0x1EF0
         };
 
-        public const int MessageBufferLength = 7;    // with stuffing
-        public const int ResponseMessageLength = 4;  // without stuffing
+        public const int MessageBufferLength = 18; // max frame length with stuffing
+        public const byte FS1Mode = 0x01;
         public const byte CommandDifference = 0x80; //test: 0x70;
         public const byte StuffKey = 0x7D;
         public static byte[] StuffChars = { 0x7D, 0x7E, 0x7F };
@@ -86,25 +94,23 @@ namespace FrequencySynthesisModuleController
         public int FrameLength;
 
         public byte ResponseCommand;
-        public byte ResponseData;
+        public byte[] ResponseData;
 
-        public Request(CommandType command, byte data)
+        public Request(CommandType command, byte[] data = null)
         {
-            Message = new byte[] { (byte)command, data };
+            if (command == CommandType.StatusRequest)
+            {
+                data = StatusReqData;
+            }
+
+            Message = new byte[data.Length + 2];
+            Message[0] = (byte)command;
+            Message[1] = FS1Mode;
+            data.CopyTo(Message, 2);
+
             Checksum = ComputeChecksum(Message);
             ResponseCommand = (byte)(command + CommandDifference);
             ResponseData = data;
-            CreateRequestFrame();
-        }
-
-        // Constructor for status request command
-        public Request(CommandType command)
-        {
-            if (command != CommandType.StatusRequest) throw new ArgumentException();
-
-            Message = new byte[] { (byte)command, StatusReqData[0], StatusReqData[1], StatusReqData[2] };
-            Checksum = ComputeChecksum(Message);
-            ResponseCommand = (byte)CommandType.StatusResponse;
             CreateRequestFrame();
         }
 
@@ -126,20 +132,36 @@ namespace FrequencySynthesisModuleController
 
         public bool GetResult(byte[] responseBuffer, out RequestResult result)
         {
-            byte[] responseMessage = Strip(responseBuffer);
-            result = new RequestResult();
+            byte[] response = Strip(responseBuffer);
 
-            if (responseMessage.Length < ResponseMessageLength)
+            // Get crc value
+            int length = response.Length - 2;
+            ushort crc = BitConverter.ToUInt16(response, length);
+
+            // Get message
+            byte[] responseMessage = new byte[length];
+            Array.Copy(response, responseMessage, length);
+
+            // Get command, result state, and data
+            byte command = responseMessage[0];
+            ResultState resultState = (ResultState)responseMessage[1];
+            length = responseMessage.Length - 2;
+            byte[] data = new byte[length];
+            Array.Copy(responseMessage, 2, data, 0, length);
+
+            // Get request result
+            result = new RequestResult();
+            if (resultState == ResultState.ModeError)
             {
-                result.ErrorMessage = "오류: 응답 메시지의 데이터가 손상됐습니다(invalid message length)";
+                result.ErrorMessage = "오류: 요청에 실패했습니다(error code: 0xFE)";
                 return false;
             }
-
-            byte command = responseMessage[0];
-            byte data = responseMessage[1];
-            ushort crc = BitConverter.ToUInt16(responseMessage, 2);
-
-            if (ComputeChecksum(new byte[] { command, data }) != crc)
+            if (resultState == ResultState.InvalidRequest)
+            {
+                result.ErrorMessage = "오류: 요청에 실패했습니다(error code: 0xFF)";
+                return false;
+            }
+            if (ComputeChecksum(responseMessage) != crc)
             {
                 result.ErrorMessage = "오류: 응답 메시지의 데이터가 손상됐습니다(checksum error)";
                 return false;
@@ -150,7 +172,7 @@ namespace FrequencySynthesisModuleController
                 return false;
             }
             if (command != (byte)CommandType.StatusResponse &&
-                ResponseData != data)
+                !ResponseData.SequenceEqual(data))
             {
                 result.ErrorMessage = "요류: 요청 값과 응답 값이 상이합니다(value not match)";
                 return false;
@@ -158,8 +180,19 @@ namespace FrequencySynthesisModuleController
 
             if (command == (byte)CommandType.StatusResponse)
             {
-                result.Lo1Status = (data & 1) != 0;
-                result.Lo2Status = (data & (1 << 1)) != 0;
+                byte digitalAlarm = data[0];
+                for (int i = 0; i <= 4; i++)
+                {
+                    result.Alams.Add((digitalAlarm & 1 << i) != 0);
+                }
+
+                byte powerAlarm = data[1];
+                for (int i = 0; i <= 3; i++)
+                {
+                    result.Alams.Add((powerAlarm & 1 << i) != 0);
+                }
+
+                result.Temperature = BitConverter.ToInt16(data, 2) * 0.1;
             }
             return true;
         }

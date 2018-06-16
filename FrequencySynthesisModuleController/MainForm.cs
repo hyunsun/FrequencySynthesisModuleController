@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Text;
+using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Forms;
 using System.IO.Ports;
@@ -34,17 +33,26 @@ namespace FrequencySynthesisModuleController
                 {
                     ResumeStatusPolling();
 
-                    pbSerialPort.Image = Properties.Resources.green;
+                    pbSerialPort.Image = Properties.Resources.green_small;
                     cbSerialPort.Enabled = false;
                     btnConnect.Text = "CLOSE";
+                    btnFreq.Enabled = true;
+                    btnPulse.Enabled = true;
+                    btnSweep.Enabled = true;
                 }
                 else
                 {
                     PauseStatusPolling();
 
-                    pbSerialPort.Image = Properties.Resources.red;
+                    pbSerialPort.Image = Properties.Resources.red_small;
                     cbSerialPort.Enabled = true;
                     btnConnect.Text = "OPEN";
+                    btnFreq.Enabled = false;
+                    btnPulse.Enabled = false;
+                    btnSweep.Enabled = false;
+
+                    Alarms.ForEach(alarm => alarm.Image = Properties.Resources.black_small);
+                    tbTemp.Text = "0.0";
                 }
             }
             get
@@ -53,24 +61,23 @@ namespace FrequencySynthesisModuleController
             }
         }
 
-        private static string Caption = "주파수 합성 모듈";
+        private static string Caption = "주파수 합성 모듈 (FS1)";
+        private static List<PictureBox> Alarms = new List<PictureBox>();
+        private static int NumAlarm = 9;
+
         private static ManualResetEvent ResponseReceivedEvent = new ManualResetEvent(false);
+        private static object RequestLock = new object();
         private static int ResponseTimeout = 1000; // 1 seconds
-        private byte[] ResponseFrameBuffer = new byte[FrameConstants.MessageBufferLength];
         private int ResponseReceived = 0;
+        private byte[] ResponseFrameBuffer;
         private bool ResponseFrameStarted = false;
         private bool ResponseFrameEnded = false;
 
-        private static object RequestLock = new object(); 
+        private static ManualResetEvent ConnectedEvent = new ManualResetEvent(false);
         private static Thread StatusPollingThread;
-        private static ManualResetEvent ConnectedEvent = new ManualResetEvent(false);  
         private static int StatusPollingDelay = 1000; // 1 seconds
-        private delegate void UpdateStatus(bool isActive);
 
-        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
-        private static extern IntPtr AddFontMemResourceEx(IntPtr pbFont, uint cbFont,
-            IntPtr pdv, [System.Runtime.InteropServices.In] ref uint pcFonts);
-        private static PrivateFontCollection DigitalFont = new PrivateFontCollection();
+        private delegate void UpdateTemperature(Int16 value);
 
         public MainForm()
         {
@@ -83,8 +90,9 @@ namespace FrequencySynthesisModuleController
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            InitDigitalFont();
-            InitSerialPortGroup();
+            InitSerialPort();
+            InitAlarm();
+            InitFrequency();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -95,22 +103,10 @@ namespace FrequencySynthesisModuleController
             }
         }
 
-        private void InitDigitalFont()
-        {
-            byte[] fontData = Properties.Resources.digital_font;
-            uint dummy = 0;
-
-            IntPtr fontPtr = System.Runtime.InteropServices.Marshal.AllocCoTaskMem(fontData.Length);
-            System.Runtime.InteropServices.Marshal.Copy(fontData, 0, fontPtr, fontData.Length);
-            DigitalFont.AddMemoryFont(fontPtr, Properties.Resources.digital_font.Length);
-            AddFontMemResourceEx(fontPtr, (uint)Properties.Resources.digital_font.Length, IntPtr.Zero, ref dummy);
-            System.Runtime.InteropServices.Marshal.FreeCoTaskMem(fontPtr);
-        }
-
-        private void InitSerialPortGroup()
+        private void InitSerialPort()
         {
             cbSerialPort.Items.Clear();
-            cbSerialPort.Items.Add("SELECT PORT");
+            cbSerialPort.Items.Add(" SELECT PORT");
             foreach (string portName in SerialPort.GetPortNames())
             {
                 cbSerialPort.Items.Add(portName);
@@ -118,7 +114,37 @@ namespace FrequencySynthesisModuleController
             cbSerialPort.DropDownStyle = ComboBoxStyle.DropDownList;
             cbSerialPort.SelectedIndex = 0;
         }
-   
+
+        private void InitAlarm()
+        {
+            Alarms.Add(pbAlarm1);
+            Alarms.Add(pbAlarm2);
+            Alarms.Add(pbAlarm3);
+            Alarms.Add(pbAlarm4);
+            Alarms.Add(pbAlarm5);
+            Alarms.Add(pbAlarm6);
+            Alarms.Add(pbAlarm7);
+            Alarms.Add(pbAlarm8);
+            Alarms.Add(pbAlarm9);
+        }
+
+        private void UpdateStatus(RequestResult status)
+        {
+            for (int i = 0; i < NumAlarm; i++)
+            {
+                Alarms[i].Invoke(new Action(() => Alarms[i].Image = status.Alams[i] ?
+                    Properties.Resources.green_small : Properties.Resources.red_small));
+            }
+
+            tbTemp.Invoke(new Action(() => tbTemp.Text = status.Temperature.ToString()));
+
+        }
+
+        private void InitFrequency()
+        {
+            rbNormal.Select();
+        }
+
         // Event handlers for serial port connection group      
         private void cbSerialPort_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -126,7 +152,7 @@ namespace FrequencySynthesisModuleController
             IsOpen = SerialPort.IsOpen; // should be always false here
             if (cbSerialPort.SelectedIndex == 0)
             {
-                pbSerialPort.Image = Properties.Resources.black;
+                pbSerialPort.Image = Properties.Resources.black_small;
             }
         }
 
@@ -144,7 +170,7 @@ namespace FrequencySynthesisModuleController
                     SerialPort.Open();
                 }
                 catch (Exception ex)
-                {                   
+                {
                     MessageBox.Show("연결에 실패했습니다, 다시 시도해 주세요.\n" +
                         ex.Message,
                         Caption,
@@ -169,20 +195,225 @@ namespace FrequencySynthesisModuleController
             this.Close();
         }
 
-        private bool ValidateControlValue(double value, out string error)
+        // Event handlers for frequency select group
+        private void tbFreq_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (value < 0.0 || value > 63.5)
+            if (!(char.IsDigit(e.KeyChar) ||
+                e.KeyChar == Convert.ToChar(Keys.Back)))
             {
-                error = "오류: 0.0 ~ 63.5 사이의 값을 넣어 주세요.";
-                return false;
+                e.Handled = true;
             }
-            if ((int)(value * 10) % 5 != 0)
+        }
+
+        private void btnFreq_Click(object sender, EventArgs e)
+        {
+            string valueError;
+            byte[] data;
+            if (!ValidateFrequencyValue(out data, out valueError))
             {
-                error = "오류: 0.5의 배수만 입력 가능합니다.";
+                MessageBox.Show("유효하지 않은 값입니다, 다시 시도해 주세요.\n" +
+                    valueError,
+                    Caption,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+
+            RequestResult reqResult;
+            Request request = new Request(CommandType.FrequencyRequest, data);
+            bool result = SendRequest(request, out reqResult);
+            if (!result)
+            {
+                MessageBox.Show("Frequency 값을 설정하지 못했습니다, 다시 시도해 주세요.\n" +
+                    reqResult.ErrorMessage,
+                    Caption,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        private bool ValidateFrequencyValue(out byte[] data, out string error)
+        {
+            int value = Convert.ToInt32(tbFreq.Text);
+            if (value < 0 || value > 255)
+            {
+                error = "오류: 0.0 ~ 255 사이의 값을 넣어 주세요.";
+                data = new byte[0];
                 return false;
             }
 
             error = "";
+            data = new byte[] {
+                Convert.ToByte(value),
+                rbNormal.Checked ? (byte) ModeType.Normal : (byte) ModeType.Silence
+            };
+            return true;
+        }
+
+        // Event handlers for pulse width duty group
+        private void tbPulseWidth_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!(char.IsDigit(e.KeyChar) ||
+                e.KeyChar == '.' ||
+                e.KeyChar == Convert.ToChar(Keys.Back)))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void tbDuty_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!(char.IsDigit(e.KeyChar) ||
+                e.KeyChar == '.' ||
+                e.KeyChar == Convert.ToChar(Keys.Back)))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void btnPulse_Click(object sender, EventArgs e)
+        {
+            string valueError;
+            byte[] data;
+            if (!ValidatePulseDutyValue(out data, out valueError))
+            {
+                MessageBox.Show("유효하지 않은 값입니다, 다시 시도해 주세요.\n" +
+                    valueError,
+                    Caption,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+
+            RequestResult reqResult;
+            Request request = new Request(CommandType.PulseRequest, data);
+            bool result = SendRequest(request, out reqResult);
+            if (!result)
+            {
+                MessageBox.Show("P.W/Duty 값을 설정하지 못했습니다, 다시 시도해 주세요.\n" +
+                    reqResult.ErrorMessage,
+                    Caption,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+
+            // Test code
+            //bool result = SendRequestTest(request,
+            //    CommandType.PulseResponse,
+            //    ResultState.Ok,
+            //    new byte[4] { 0x00, 0x00, 0x00, 0x00 },
+            //    out reqResult);
+        }
+
+        private bool ValidatePulseDutyValue(out byte[] data, out string error)
+        {
+            double pulseWidth = Convert.ToDouble(tbPulseWidth.Text);
+            double duty = Convert.ToDouble(tbDuty.Text);
+
+            if (pulseWidth < 0 || pulseWidth > 6553.5 ||
+                duty < 0 || duty > 6553.5)
+            {
+                error = "오류: 0.0 ~ 6553.5 사이의 값을 넣어 주세요.";
+                data = new byte[0];
+                return false;
+            }
+
+            if (duty > pulseWidth)
+            {
+                error = "오류: Duty는 P.W보다 작아야 합니다.";
+                data = new byte[0];
+                return false;
+            }
+
+            error = "";
+            data = new byte[4];
+            BitConverter.GetBytes(Convert.ToUInt16(pulseWidth * 10)).CopyTo(data, 0);
+            BitConverter.GetBytes(Convert.ToUInt16(duty * 10)).CopyTo(data, 2);
+            return true;
+        }
+
+        // Event handlers for sweep group
+        private void tbStart_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!(char.IsDigit(e.KeyChar) ||
+                e.KeyChar == Convert.ToChar(Keys.Back)))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void tbStop_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!(char.IsDigit(e.KeyChar) ||
+                e.KeyChar == Convert.ToChar(Keys.Back)))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void tbSweep_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!(char.IsDigit(e.KeyChar) ||
+                e.KeyChar == Convert.ToChar(Keys.Back)))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void btnSweep_Click(object sender, EventArgs e)
+        {
+            string valueError;
+            byte[] data;
+            if (!ValidateSweepValue(out data, out valueError))
+            {
+                MessageBox.Show("유효하지 않은 값입니다, 다시 시도해 주세요.\n" +
+                    valueError,
+                    Caption,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+
+            RequestResult reqResult;
+            Request request = new Request(CommandType.SweepRequest, data);
+            bool result = SendRequest(request, out reqResult);
+            if (!result)
+            {
+                MessageBox.Show("Sweep 값을 설정하지 못했습니다, 다시 시도해 주세요.\n" +
+                    reqResult.ErrorMessage,
+                    Caption,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+
+            // Test code
+            //bool result = SendRequestTest(request,
+            //    CommandType.SweepResponse,
+            //    ResultState.Ok,
+            //    new byte[6] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+            //    out reqResult);
+        }
+
+        private bool ValidateSweepValue(out byte[] data, out string error)
+        {
+            int start = Convert.ToInt32(tbStart.Text);
+            int stop = Convert.ToInt32(tbStop.Text);
+            int sweep = Convert.ToInt32(tbSweep.Text);
+
+            if (start < 0 || start > 65535 ||
+                stop < 0 || stop > 65535 ||
+                sweep < 0 || sweep > 65535)
+            {
+                error = "오류: 0 ~ 65535 사이의 값을 넣어 주세요.";
+                data = new byte[0];
+                return false;
+            }
+
+            error = "";
+            data = new byte[6];
+            BitConverter.GetBytes(Convert.ToUInt16(start)).CopyTo(data, 0);
+            BitConverter.GetBytes(Convert.ToUInt16(stop)).CopyTo(data, 2);
+            BitConverter.GetBytes(Convert.ToUInt16(sweep)).CopyTo(data, 4);
             return true;
         }
 
@@ -202,8 +433,7 @@ namespace FrequencySynthesisModuleController
                 RequestResult result = GetCurrentStatus();
                 if (result != null)
                 {
-                    // do updates
-                    continue;
+                    UpdateStatus(result);
                 }
                 Thread.Sleep(StatusPollingDelay);
             }
@@ -246,8 +476,8 @@ namespace FrequencySynthesisModuleController
                 // just return false when timed out
                 if (ResponseFrameEnded)
                 {
-                    // Trim trailing NULLs
-                    byte[] responseFrame = new byte[ResponseReceived];
+                    ResponseReceivedEvent.Set();
+                    byte[] responseFrame = new byte[ResponseReceived]; // Trim trailing nulls
                     Array.Copy(ResponseFrameBuffer, responseFrame, ResponseReceived);
                     result = request.GetResult(responseFrame, out reqResult);
                 }
@@ -273,7 +503,6 @@ namespace FrequencySynthesisModuleController
                 {
                     // Release main form when receiving response complete
                     ResponseFrameEnded = true;
-                    ResponseReceivedEvent.Set();
                 }
                 else if (ResponseFrameStarted &&
                     ResponseReceived < FrameConstants.MessageBufferLength)
@@ -281,6 +510,32 @@ namespace FrequencySynthesisModuleController
                     ResponseFrameBuffer[ResponseReceived++] = read;
                 }
             }
+        }
+
+        private bool SendRequestTest(Request request,
+                                     CommandType testResponseCommand,
+                                     ResultState testResultState,
+                                     byte[] testResponseData,
+                                     out RequestResult reqResult)
+        {
+            bool result = false;
+
+            // build response message
+            byte[] responseMessage = new byte[request.Message.Length];
+            responseMessage[0] = (byte) testResponseCommand;
+            responseMessage[1] = (byte) testResultState;
+            testResponseData.CopyTo(responseMessage, 2);
+            ushort checksum = Request.ComputeChecksum(responseMessage);
+
+            // do stuffing
+            byte[] original = new byte[responseMessage.Length + 2];
+            responseMessage.CopyTo(original, 0);
+            BitConverter.GetBytes(checksum).CopyTo(original, responseMessage.Length);
+            byte[] stuffed = Request.Stuff(original);
+
+            // process response message
+            result = request.GetResult(stuffed, out reqResult);
+            return result;
         }
     }
 }
