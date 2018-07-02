@@ -598,7 +598,7 @@
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Name = "MainForm";
-            this.Text = "주파수 합성 모듈 (FS1)";
+            this.Text = "주파수 합성 모듈 (FSM1)";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.groupBox1.ResumeLayout(false);
