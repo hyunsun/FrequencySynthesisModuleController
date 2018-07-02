@@ -165,11 +165,11 @@
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("맑은 고딕", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.label7.ForeColor = System.Drawing.Color.DarkBlue;
-            this.label7.Location = new System.Drawing.Point(32, 22);
+            this.label7.Location = new System.Drawing.Point(21, 23);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(504, 32);
+            this.label7.Size = new System.Drawing.Size(527, 32);
             this.label7.TabIndex = 15;
-            this.label7.Text = "차기대포병탐지레이더 주파수합성모듈1(FS1)";
+            this.label7.Text = "차기대포병탐지레이더 주파수합성모듈1(FSM1)";
             // 
             // groupBox7
             // 
