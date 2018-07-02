@@ -38,7 +38,6 @@ namespace FrequencySynthesisModuleController
                     btnConnect.Text = "CLOSE";
                     btnFreq.Enabled = true;
                     btnPulse.Enabled = true;
-                    btnSweep.Enabled = true;
                 }
                 else
                 {
@@ -49,7 +48,6 @@ namespace FrequencySynthesisModuleController
                     btnConnect.Text = "OPEN";
                     btnFreq.Enabled = false;
                     btnPulse.Enabled = false;
-                    btnSweep.Enabled = false;
 
                     Alarms.ForEach(alarm => alarm.Image = Properties.Resources.black_small);
                     tbTemp.Text = "0.0";
@@ -67,7 +65,7 @@ namespace FrequencySynthesisModuleController
 
         private static ManualResetEvent ResponseReceivedEvent = new ManualResetEvent(false);
         private static object RequestLock = new object();
-        private static int ResponseTimeout = 1000; // 1 seconds
+        private static int ResponseTimeout = 300;//1000; // 1 seconds
         private int ResponseReceived = 0;
         private byte[] ResponseFrameBuffer;
         private bool ResponseFrameStarted = false;
@@ -329,91 +327,6 @@ namespace FrequencySynthesisModuleController
             data = new byte[4];
             BitConverter.GetBytes(Convert.ToUInt16(pulseWidth * 10)).CopyTo(data, 0);
             BitConverter.GetBytes(Convert.ToUInt16(duty * 10)).CopyTo(data, 2);
-            return true;
-        }
-
-        // Event handlers for sweep group
-        private void tbStart_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!(char.IsDigit(e.KeyChar) ||
-                e.KeyChar == Convert.ToChar(Keys.Back)))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void tbStop_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!(char.IsDigit(e.KeyChar) ||
-                e.KeyChar == Convert.ToChar(Keys.Back)))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void tbSweep_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!(char.IsDigit(e.KeyChar) ||
-                e.KeyChar == Convert.ToChar(Keys.Back)))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void btnSweep_Click(object sender, EventArgs e)
-        {
-            string valueError;
-            byte[] data;
-            if (!ValidateSweepValue(out data, out valueError))
-            {
-                MessageBox.Show("유효하지 않은 값입니다, 다시 시도해 주세요.\n" +
-                    valueError,
-                    Caption,
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-                return;
-            }
-
-            RequestResult reqResult;
-            Request request = new Request(CommandType.SweepRequest, data);
-            bool result = SendRequest(request, out reqResult);
-            if (!result)
-            {
-                MessageBox.Show("Sweep 값을 설정하지 못했습니다, 다시 시도해 주세요.\n" +
-                    reqResult.ErrorMessage,
-                    Caption,
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-            }
-
-            // Test code
-            //bool result = SendRequestTest(request,
-            //    CommandType.SweepResponse,
-            //    ResultState.Ok,
-            //    new byte[6] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
-            //    out reqResult);
-        }
-
-        private bool ValidateSweepValue(out byte[] data, out string error)
-        {
-            int start = Convert.ToInt32(tbStart.Text);
-            int stop = Convert.ToInt32(tbStop.Text);
-            int sweep = Convert.ToInt32(tbSweep.Text);
-
-            if (start < 0 || start > 65535 ||
-                stop < 0 || stop > 65535 ||
-                sweep < 0 || sweep > 65535)
-            {
-                error = "오류: 0 ~ 65535 사이의 값을 넣어 주세요.";
-                data = new byte[0];
-                return false;
-            }
-
-            error = "";
-            data = new byte[6];
-            BitConverter.GetBytes(Convert.ToUInt16(start)).CopyTo(data, 0);
-            BitConverter.GetBytes(Convert.ToUInt16(stop)).CopyTo(data, 2);
-            BitConverter.GetBytes(Convert.ToUInt16(sweep)).CopyTo(data, 4);
             return true;
         }
 

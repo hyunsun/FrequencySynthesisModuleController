@@ -153,7 +153,7 @@ namespace FrequencySynthesisModuleController
             result = new RequestResult();
             if (resultState == ResultState.ModeError)
             {
-                result.ErrorMessage = "오류: 요청에 실패했습니다(error code: 0xFE)";
+                result.ErrorMessage = "오류: FS1 모드가 아닙니다. 보드를 확인해 주세요.(error code: 0xFE)";
                 return false;
             }
             if (resultState == ResultState.InvalidRequest)

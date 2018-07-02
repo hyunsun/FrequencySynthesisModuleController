@@ -45,11 +45,11 @@
             this.label14 = new System.Windows.Forms.Label();
             this.tbDuty = new System.Windows.Forms.TextBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.rbSilence = new System.Windows.Forms.RadioButton();
-            this.rbNormal = new System.Windows.Forms.RadioButton();
             this.btnFreq = new System.Windows.Forms.Button();
             this.label13 = new System.Windows.Forms.Label();
             this.tbFreq = new System.Windows.Forms.TextBox();
+            this.rbSilence = new System.Windows.Forms.RadioButton();
+            this.rbNormal = new System.Windows.Forms.RadioButton();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label12 = new System.Windows.Forms.Label();
             this.tbTemp = new System.Windows.Forms.TextBox();
@@ -72,14 +72,7 @@
             this.pbAlarm2 = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.pbAlarm1 = new System.Windows.Forms.PictureBox();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.btnSweep = new System.Windows.Forms.Button();
-            this.label21 = new System.Windows.Forms.Label();
-            this.tbSweep = new System.Windows.Forms.TextBox();
-            this.label22 = new System.Windows.Forms.Label();
-            this.tbStop = new System.Windows.Forms.TextBox();
-            this.label23 = new System.Windows.Forms.Label();
-            this.tbStart = new System.Windows.Forms.TextBox();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbSerialPort)).BeginInit();
             this.groupBox7.SuspendLayout();
@@ -96,7 +89,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pbAlarm3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbAlarm2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbAlarm1)).BeginInit();
-            this.groupBox4.SuspendLayout();
+            this.groupBox5.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -170,13 +163,13 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("맑은 고딕", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label7.Font = new System.Drawing.Font("맑은 고딕", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.label7.ForeColor = System.Drawing.Color.DarkBlue;
-            this.label7.Location = new System.Drawing.Point(121, 22);
+            this.label7.Location = new System.Drawing.Point(32, 22);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(301, 37);
+            this.label7.Size = new System.Drawing.Size(504, 32);
             this.label7.TabIndex = 15;
-            this.label7.Text = "주파수 합성 모듈 (FS1)";
+            this.label7.Text = "차기대포병탐지레이더 주파수합성모듈1(FS1)";
             // 
             // groupBox7
             // 
@@ -189,9 +182,9 @@
             this.groupBox7.Controls.Add(this.label14);
             this.groupBox7.Controls.Add(this.tbDuty);
             this.groupBox7.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.groupBox7.Location = new System.Drawing.Point(264, 295);
+            this.groupBox7.Location = new System.Drawing.Point(264, 335);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(281, 301);
+            this.groupBox7.Size = new System.Drawing.Size(281, 368);
             this.groupBox7.TabIndex = 20;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "PULSE WIDTH/DUTY";
@@ -201,7 +194,7 @@
             this.pictureBox10.Image = global::FrequencySynthesisModuleController.Properties.Resources.pulsewithduty;
             this.pictureBox10.Location = new System.Drawing.Point(15, 28);
             this.pictureBox10.Name = "pictureBox10";
-            this.pictureBox10.Size = new System.Drawing.Size(260, 130);
+            this.pictureBox10.Size = new System.Drawing.Size(260, 187);
             this.pictureBox10.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox10.TabIndex = 23;
             this.pictureBox10.TabStop = false;
@@ -210,7 +203,7 @@
             // 
             this.label17.AutoSize = true;
             this.label17.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label17.Location = new System.Drawing.Point(18, 225);
+            this.label17.Location = new System.Drawing.Point(18, 290);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(42, 19);
             this.label17.TabIndex = 22;
@@ -220,7 +213,7 @@
             // 
             this.label16.AutoSize = true;
             this.label16.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label16.Location = new System.Drawing.Point(26, 184);
+            this.label16.Location = new System.Drawing.Point(26, 249);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(34, 19);
             this.label16.TabIndex = 21;
@@ -230,7 +223,7 @@
             // 
             this.label15.AutoSize = true;
             this.label15.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label15.Location = new System.Drawing.Point(251, 181);
+            this.label15.Location = new System.Drawing.Point(251, 246);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(24, 19);
             this.label15.TabIndex = 20;
@@ -239,7 +232,7 @@
             // tbPulseWidth
             // 
             this.tbPulseWidth.Font = new System.Drawing.Font("Consolas", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbPulseWidth.Location = new System.Drawing.Point(66, 169);
+            this.tbPulseWidth.Location = new System.Drawing.Point(66, 234);
             this.tbPulseWidth.Name = "tbPulseWidth";
             this.tbPulseWidth.Size = new System.Drawing.Size(179, 36);
             this.tbPulseWidth.TabIndex = 19;
@@ -250,7 +243,7 @@
             // btnPulse
             // 
             this.btnPulse.Font = new System.Drawing.Font("Calibri", 12.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnPulse.Location = new System.Drawing.Point(66, 255);
+            this.btnPulse.Location = new System.Drawing.Point(66, 320);
             this.btnPulse.Name = "btnPulse";
             this.btnPulse.Size = new System.Drawing.Size(179, 36);
             this.btnPulse.TabIndex = 12;
@@ -262,7 +255,7 @@
             // 
             this.label14.AutoSize = true;
             this.label14.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label14.Location = new System.Drawing.Point(251, 225);
+            this.label14.Location = new System.Drawing.Point(251, 290);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(24, 19);
             this.label14.TabIndex = 18;
@@ -271,7 +264,7 @@
             // tbDuty
             // 
             this.tbDuty.Font = new System.Drawing.Font("Consolas", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbDuty.Location = new System.Drawing.Point(66, 212);
+            this.tbDuty.Location = new System.Drawing.Point(66, 277);
             this.tbDuty.Name = "tbDuty";
             this.tbDuty.Size = new System.Drawing.Size(179, 36);
             this.tbDuty.TabIndex = 0;
@@ -281,49 +274,23 @@
             // 
             // groupBox6
             // 
-            this.groupBox6.Controls.Add(this.rbSilence);
-            this.groupBox6.Controls.Add(this.rbNormal);
             this.groupBox6.Controls.Add(this.btnFreq);
             this.groupBox6.Controls.Add(this.label13);
             this.groupBox6.Controls.Add(this.tbFreq);
             this.groupBox6.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.groupBox6.Location = new System.Drawing.Point(264, 155);
+            this.groupBox6.Location = new System.Drawing.Point(264, 242);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(281, 134);
+            this.groupBox6.Size = new System.Drawing.Size(281, 81);
             this.groupBox6.TabIndex = 19;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "FREQ. SELECT";
-            // 
-            // rbSilence
-            // 
-            this.rbSilence.AutoSize = true;
-            this.rbSilence.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rbSilence.Location = new System.Drawing.Point(18, 103);
-            this.rbSilence.Name = "rbSilence";
-            this.rbSilence.Size = new System.Drawing.Size(80, 23);
-            this.rbSilence.TabIndex = 20;
-            this.rbSilence.TabStop = true;
-            this.rbSilence.Text = "SILENCE";
-            this.rbSilence.UseVisualStyleBackColor = true;
-            // 
-            // rbNormal
-            // 
-            this.rbNormal.AutoSize = true;
-            this.rbNormal.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rbNormal.Location = new System.Drawing.Point(18, 77);
-            this.rbNormal.Name = "rbNormal";
-            this.rbNormal.Size = new System.Drawing.Size(86, 23);
-            this.rbNormal.TabIndex = 19;
-            this.rbNormal.TabStop = true;
-            this.rbNormal.Text = "NORMAL";
-            this.rbNormal.UseVisualStyleBackColor = true;
             // 
             // btnFreq
             // 
             this.btnFreq.Font = new System.Drawing.Font("Calibri", 12.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnFreq.Location = new System.Drawing.Point(155, 28);
             this.btnFreq.Name = "btnFreq";
-            this.btnFreq.Size = new System.Drawing.Size(120, 98);
+            this.btnFreq.Size = new System.Drawing.Size(120, 36);
             this.btnFreq.TabIndex = 12;
             this.btnFreq.Text = "SEND";
             this.btnFreq.UseVisualStyleBackColor = true;
@@ -349,6 +316,30 @@
             this.tbFreq.Text = "0";
             this.tbFreq.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.tbFreq.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbFreq_KeyPress);
+            // 
+            // rbSilence
+            // 
+            this.rbSilence.AutoSize = true;
+            this.rbSilence.Font = new System.Drawing.Font("Calibri", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rbSilence.Location = new System.Drawing.Point(155, 35);
+            this.rbSilence.Name = "rbSilence";
+            this.rbSilence.Size = new System.Drawing.Size(91, 27);
+            this.rbSilence.TabIndex = 20;
+            this.rbSilence.TabStop = true;
+            this.rbSilence.Text = "SILENCE";
+            this.rbSilence.UseVisualStyleBackColor = true;
+            // 
+            // rbNormal
+            // 
+            this.rbNormal.AutoSize = true;
+            this.rbNormal.Font = new System.Drawing.Font("Calibri", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rbNormal.Location = new System.Drawing.Point(26, 35);
+            this.rbNormal.Name = "rbNormal";
+            this.rbNormal.Size = new System.Drawing.Size(98, 27);
+            this.rbNormal.TabIndex = 19;
+            this.rbNormal.TabStop = true;
+            this.rbNormal.Text = "NORMAL";
+            this.rbNormal.UseVisualStyleBackColor = true;
             // 
             // groupBox3
             // 
@@ -582,103 +573,24 @@
             this.pbAlarm1.TabIndex = 0;
             this.pbAlarm1.TabStop = false;
             // 
-            // groupBox4
+            // groupBox5
             // 
-            this.groupBox4.Controls.Add(this.btnSweep);
-            this.groupBox4.Controls.Add(this.label21);
-            this.groupBox4.Controls.Add(this.tbSweep);
-            this.groupBox4.Controls.Add(this.label22);
-            this.groupBox4.Controls.Add(this.tbStop);
-            this.groupBox4.Controls.Add(this.label23);
-            this.groupBox4.Controls.Add(this.tbStart);
-            this.groupBox4.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.groupBox4.Location = new System.Drawing.Point(23, 602);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(522, 101);
-            this.groupBox4.TabIndex = 21;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "SWEEP";
-            // 
-            // btnSweep
-            // 
-            this.btnSweep.Font = new System.Drawing.Font("Calibri", 12.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSweep.Location = new System.Drawing.Point(396, 51);
-            this.btnSweep.Name = "btnSweep";
-            this.btnSweep.Size = new System.Drawing.Size(120, 36);
-            this.btnSweep.TabIndex = 12;
-            this.btnSweep.Text = "SEND";
-            this.btnSweep.UseVisualStyleBackColor = true;
-            this.btnSweep.Click += new System.EventHandler(this.btnSweep_Click);
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label21.Location = new System.Drawing.Point(278, 29);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(85, 19);
-            this.label21.TabIndex = 30;
-            this.label21.Text = "SWEEP No.";
-            // 
-            // tbSweep
-            // 
-            this.tbSweep.Font = new System.Drawing.Font("Consolas", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbSweep.Location = new System.Drawing.Point(263, 51);
-            this.tbSweep.Name = "tbSweep";
-            this.tbSweep.Size = new System.Drawing.Size(115, 36);
-            this.tbSweep.TabIndex = 28;
-            this.tbSweep.Text = "0";
-            this.tbSweep.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.tbSweep.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbSweep_KeyPress);
-            // 
-            // label22
-            // 
-            this.label22.AutoSize = true;
-            this.label22.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label22.Location = new System.Drawing.Point(176, 29);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(45, 19);
-            this.label22.TabIndex = 27;
-            this.label22.Text = "STOP";
-            // 
-            // tbStop
-            // 
-            this.tbStop.Font = new System.Drawing.Font("Consolas", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbStop.Location = new System.Drawing.Point(139, 51);
-            this.tbStop.Name = "tbStop";
-            this.tbStop.Size = new System.Drawing.Size(115, 36);
-            this.tbStop.TabIndex = 25;
-            this.tbStop.Text = "0";
-            this.tbStop.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.tbStop.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbStop_KeyPress);
-            // 
-            // label23
-            // 
-            this.label23.AutoSize = true;
-            this.label23.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label23.Location = new System.Drawing.Point(49, 29);
-            this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(51, 19);
-            this.label23.TabIndex = 24;
-            this.label23.Text = "START";
-            // 
-            // tbStart
-            // 
-            this.tbStart.Font = new System.Drawing.Font("Consolas", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tbStart.Location = new System.Drawing.Point(15, 51);
-            this.tbStart.Name = "tbStart";
-            this.tbStart.Size = new System.Drawing.Size(115, 36);
-            this.tbStart.TabIndex = 19;
-            this.tbStart.Text = "0";
-            this.tbStart.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.tbStart.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbStart_KeyPress);
+            this.groupBox5.Controls.Add(this.rbNormal);
+            this.groupBox5.Controls.Add(this.rbSilence);
+            this.groupBox5.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.groupBox5.Location = new System.Drawing.Point(264, 155);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(281, 81);
+            this.groupBox5.TabIndex = 20;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "MODE SELECT";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(564, 722);
-            this.Controls.Add(this.groupBox4);
+            this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.groupBox7);
             this.Controls.Add(this.groupBox6);
@@ -710,8 +622,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pbAlarm3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbAlarm2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbAlarm1)).EndInit();
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -763,14 +675,7 @@
         private System.Windows.Forms.PictureBox pictureBox10;
         private System.Windows.Forms.RadioButton rbSilence;
         private System.Windows.Forms.RadioButton rbNormal;
-        private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.Button btnSweep;
-        private System.Windows.Forms.Label label21;
-        private System.Windows.Forms.TextBox tbSweep;
-        private System.Windows.Forms.Label label22;
-        private System.Windows.Forms.TextBox tbStop;
-        private System.Windows.Forms.Label label23;
-        private System.Windows.Forms.TextBox tbStart;
+        private System.Windows.Forms.GroupBox groupBox5;
     }
 }
 
